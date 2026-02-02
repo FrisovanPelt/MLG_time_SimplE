@@ -1,115 +1,140 @@
-Summary
-=======
+# Temporal Analysis of SimplE on ICEWS14
 
-This is a faster implementation of the model proposed in [SimplE Embedding for Link Prediction in Knowledge Graphs](https://papers.nips.cc/paper/7682-simple-embedding-for-link-prediction-in-knowledge-graphs) for knowledge graph embedding. It can be also used to learn `SimplE` models for any input model. The software can be also used as a framework to implement new knowledge graph embedding models.
+## Summary
 
+This repository contains an experimental study of the **SimplE** knowledge graph embedding model applied to the **ICEWS14** dataset under different temporal assumptions.
+
+The project reproduces the original SimplE model in a **static setting** and evaluates a **minimal temporal extension** that conditions on timestamps **without allowing entity representations to evolve over time**.
+
+The goal of this work is **not** to propose a new model, but to analyze how different temporal modeling choices affect performance, and to contrast these findings with the published results of **DE-SimplE**, a temporal extension of SimplE that introduces diachronic entity embeddings.
+
+This codebase is largely based on the official SimplE implementation and retains the original training and evaluation pipeline with minimal modifications.
+
+---
 
 ## Dependencies
 
-* `Python` version 3.6
-* `Numpy` version 1.15.4
-* `PyTorch` version 1.0.0
+The dependencies and setup closely follow the original SimplE implementation:
+
+- **Python** 3.6+
+- **NumPy** 1.15+
+- **PyTorch** 1.0+
+
+The code has been tested with more recent versions of PyTorch, though behavior may differ slightly due to changes in default serialization and optimization settings.
+
+### Installation
+
+A minimal setup using `pip`:
+
+```bash
+pip install numpy torch
+```
+
+Using a virtual environment is recommended.
+
+---
+
+## Project Structure and Datasets
+
+The project supports two variants of the ICEWS14 dataset:
+
+- **`ICEWS14_static`**  
+  A static version of ICEWS14 obtained by removing the temporal component from all quadruples and deduplicating resulting triples.  
+  This dataset is used to reproduce SimplE in its original static formulation.
+
+- **`ICEWS14`**  
+  The original temporal dataset, used for evaluating a minimal temporal extension of SimplE that conditions on timestamps while keeping entity and relation embeddings static.
+
+All datasets are expected to be placed in the `datasets/` directory.
+
+> **Note:** Dataset files are expected to follow the same format as in the original SimplE repository. ICEWS14 must be obtained separately and is not redistributed here.
+
+---
+
+## Temporal Modeling Assumptions
+
+The minimal temporal extension evaluated in this repository:
+
+- conditions scoring on timestamps
+- **does not** introduce time-dependent entity embeddings
+- **does not** modify the SimplE scoring function beyond timestamp conditioning
+
+This design isolates the effect of temporal conditioning alone and allows direct comparison with DE-SimplE, which introduces diachronic entity representations.
+
+---
 
 ## Usage
 
-To run SimplE you should define the following parameters:
+To run SimplE or its minimal temporal variant, the following parameters can be specified:
 
-`ne`: number of epochs
+- `ne`: number of training epochs  
+- `lr`: learning rate  
+- `reg`: L2 regularization parameter  
+- `dataset`: dataset name  
+- `emb_dim`: embedding dimension  
+- `neg_ratio`: number of negative samples per positive example  
+- `batch_size`: batch size  
+- `save_each`: validation frequency (in epochs)
 
-`lr`: learning rate
+Example usage:
 
-`reg`:l2 regularization parameter
+```bash
+python main.py \
+  -ne <ne> \
+  -lr <lr> \
+  -reg <reg> \
+  -dataset <dataset> \
+  -emb_dim <emb_dim> \
+  -neg_ratio <neg_ratio> \
+  -batch_size <batch_size> \
+  -save_each <save_each>
+```
 
-`dataset`: The dataset you want to run SimplE on
+---
 
-`emb_dim`: embedding dimension
+## Evaluation and Results
 
-`neg_ratio`: number of negative examples per positive example
+Models are evaluated using the same metrics and evaluation protocol as the original SimplE implementation.  
+Validation and test results are logged during training and saved according to the specified validation frequency.
 
-`batch_size`: batch size
+Published DE-SimplE results are used for comparison and are **not** reproduced in this repository.
 
-`save_each`: validate every k epochs
+---
 
-* Run `python main.py -ne ne -lr lr -reg reg -dataset dataset -emb_dim emb_dim -neg_ratio neg_ratio -batch_size batch_size -save_each save_each`
+## Relation to Prior Work
 
+This project is based on and inspired by the following works:
 
-Running a model `M` on a dataset `D` will save the embeddings in a folder with the following address:
+### SimplE
+Kazemi and Poole introduced **SimplE** as a simple yet expressive model for static knowledge graph completion.
 
-    $ <Current Directory>/models/D/
+- **Official repository:**  
+  https://github.com/Mehran-k/SimplE
 
-As an example, running the `SimplE` model on `wn18` will save the embeddings in the following folder:
+### DE-SimplE
+Goel et al. proposed **DE-SimplE**, a temporal extension of SimplE that models diachronic entity embeddings.
 
-    $ <Current Directory>/models/wn18/
-    
+- **Official repository:**  
+  https://github.com/BorealisAI/de-simple
 
-## Reproducing the Results in the Paper
+This repository does **not** reimplement DE-SimplE. Instead, published DE-SimplE results are used for comparison in order to analyze which temporal inductive biases are necessary for strong performance on **ICEWS14**.
 
-In order to reproduce the results presented in the paper, you should run the following commands:
+---
 
-### WN18
+## Limitations
 
-RUN `python main.py -ne 1000 -lr 0.1 -reg 0.03 -dataset WN18 -emb_dim 200 -neg_ratio 1 -batch_size 1415 -save_each 50`
+- This work does not explore alternative temporal embedding schemes beyond timestamp conditioning.
+- Results depend on the original SimplE training pipeline and hyperparameter choices.
+- Differences from published DE-SimplE results may arise due to dataset preprocessing and evaluation protocol differences.
 
-### FB15K
+---
 
-RUN `python main.py -ne 1000 -lr 0.05 -reg 0.1 -dataset FB15K -emb_dim 200 -neg_ratio 10 -batch_size 4832 -save_each 50`
+## Citation
 
-## Learned Embeddings for SimplE
+If you use this code or analysis in academic work, please cite the original SimplE and DE-SimplE papers.
 
+---
 
+## License
 
-## Publication
-
-Refer to the following publication for details of the models and experiments.
-
-- [Seyed Mehran Kazemi](https://mehran-k.github.io/) and [David Poole](http://www.cs.ubc.ca/~poole)
-
-  [SimplE Embedding for Link Prediction in Knowledge Graphs](https://papers.nips.cc/paper/7682-simple-embedding-for-link-prediction-in-knowledge-graphs)
-  
-  [Representing and learning relations and properties under uncertainty](https://open.library.ubc.ca/collections/ubctheses/24/items/1.0375812)
-
-
-## Cite SimplE
-
-If you use this package for published work, please cite one (or both) of the following:
-
-    @inproceedigs{kazemi2018simple,
-      title={SimplE Embedding for Link Prediction in Knowledge Graphs},
-      author={Kazemi, Seyed Mehran and Poole, David},
-      booktitle={Advances in Neural Information Processing Systems},
-      year={2018}
-    }
-    
-    @phdthesis{Kazemi_2018, 
-      series={Electronic Theses and Dissertations (ETDs) 2008+}, 
-      title={Representing and learning relations and properties under uncertainty}, 
-      url={https://open.library.ubc.ca/collections/ubctheses/24/items/1.0375812}, 
-      DOI={http://dx.doi.org/10.14288/1.0375812}, 
-      school={University of British Columbia}, 
-      author={Kazemi, Seyed Mehran}, 
-      year={2018}, 
-      collection={Electronic Theses and Dissertations (ETDs) 2008+}
-    }
-
-Contact
-=======
-
-Bahare Fatemi
-
-Computer Science Department
-
-The University of British Columbia
-
-201-2366 Main Mall, Vancouver, BC, Canada (V6T 1Z4)  
-
-<bfatemi@cs.ubc.ca>
-
-
-License
-=======
-
-Licensed under the GNU General Public License Version 3.0.
-<https://www.gnu.org/licenses/gpl-3.0.en.html>
-
-
-Copyright (C) 2019 Bahare Fatemi
+This repository follows the license of the original SimplE implementation unless stated otherwise.
