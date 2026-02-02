@@ -47,8 +47,6 @@ The project supports two variants of the ICEWS14 dataset:
 
 All datasets are expected to be placed in the `datasets/` directory.
 
-> **Note:** Dataset files are expected to follow the same format as in the original SimplE repository. ICEWS14 must be obtained separately and is not redistributed here.
-
 ---
 
 ## Temporal Modeling Assumptions
